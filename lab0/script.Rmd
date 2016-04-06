@@ -1,30 +1,147 @@
 ---
 title: "Data Analysis with R (Lab-0)"
 output: github_document
+author: Pavel Andrienko
+date: 04/06/2016
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## GitHub Documents
+url: http://rpubs.com/pashadow/da-lab0
 
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+## The Data: Dr. Arbuthnot’s Baptism Records
 
-## Including Code
+### Obtaining data
 
-You can include R code in the document as follows:
+The Arbuthnot baptism counts for boys and girls
 
-```{r cars}
-summary(cars)
+```{r arbuthnot}
+# Download dataset
+source("http://www.openintro.org/stat/data/arbuthnot.R")
 ```
 
-## Including Plots
+### Determining what data is
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r }
+dim(arbuthnot)
+names(arbuthnot)
+head(arbuthnot)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+### Some Exploration
+
+This command will only show the number of boys baptized each year.
+```{r boys-list}
+arbuthnot$boys
+```
+
+**Excercise 1.** What command would you use to extract just the counts of girls baptized?
+
+```{r girls-list}
+# counts of girls baptized each year
+arbuthnot$girls
+# total counts of girls baptized att all
+sum(arbuthnot$girls)
+```
+
+We can create a scatterplot  plot of the number of girls baptized per year with the command
+
+```{r girls}
+# scatterplot
+plot(x = arbuthnot$year, y = arbuthnot$girls)
+# line plot
+plot(x = arbuthnot$year, y = arbuthnot$girls, type = "l")
+```
+
+**Excercise 2.** Is there an apparent trend in the number of girls baptized over the years? How would you describe it?
+
+It's easy to see that the number of girls grows from 1660 till 1700 very fast.
+
+We can make a plot of the total number of baptisms per year with the command
+
+```{r total-arbuthnot}
+plot(arbuthnot$year, arbuthnot$boys + arbuthnot$girls, type = "l")
+```
+
+**Excercise 3.** Now, make a plot of the proportion of boys over time. What do you see?
+
+```{r boysProportion-arbuthnot}
+# calculate proportion
+boysProportion <- arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls)
+# make plot
+plot(arbuthnot$year, boysProportion, type = "l", ylim=c(0.5, 0.535))
+# add regression line
+abline(lm(boysProportion ~ arbuthnot$year))
+```
+
+We can see that proportion of boys decreases, but it's bigger then 0.5 so number of boys is bigger than girls.
+
+
+## Present day birth records in the United States (Centers for Disease Control)
+
+These data come from a report by the Centers for Disease Control http://www.cdc.gov/nchs/data/nvsr/nvsr53/nvsr53_20.pdf
+
+### Obtaining data
+
+```{r present}
+# Download dataset
+source("http://www.openintro.org/stat/data/present.R")
+```
+
+### Determining what data is
+
+**Excercise 1.** What years are included in this data set? What are the dimensions of the data frame and what are the variable or column names?
+
+```{r }
+# piece of data
+head(present)
+# dimensins
+dim(present)
+# column names
+names(present)
+```
+
+### Some Exploration
+
+**Excercise 2.** How do these counts compare to Arbuthnot’s? Are they on a similar scale?
+
+```{r}
+# arbuthnot mean 
+mean(arbuthnot$boys + arbuthnot$girls)
+# present mean
+mean(present$boys + present$girls)
+```
+
+We can see difference is very big. Counts are on different scale.
+
+**Excercise 3.** Make a plot that displays the boy-to-girl ratio for every year in the data set. What do you see? Does Arbuthnot’s observation about boys being born in greater proportion than girls hold up in the U.S.? Include the plot in your response.
+
+```{r boysProportion-present}
+# calculate proportion
+boysProportion <- present$boys / (present$boys + present$girls)
+# make plot
+plot(present$year, boysProportion, type = "l", ylim=c(0.5, 0.53))
+# add regression line
+abline(lm(boysProportion ~ present$year))
+```
+
+It's easy to see that boy-to-girl ratio is bigger then 0.5, so Arbuthnot’s observation about boys being born in greater proportion than girls holds up in the U.S.
+
+**Excercise 4.** In what year did we see the most total number of births in the U.S.?
+
+```{r total-present}
+plot(x = present$year, y = present$boys, col="blue", type = "l",
+     xlab="Year",ylab="newborns",main="Number of boys and girls over years")
+lines(x = present$year, y = present$girls, col="red")
+legend(1990, 1800000, c("Boys","Girls"), lty=c(1,1), lwd=c(2.5,2.5), col=c("blue","red"))
+```
+
+As we can see from plot the most total number of births in the U.S. was around 1960 years.
+
+We can calculate this more precisely
+
+```{r}
+present$year[(present$boys + present$girls) == max(present$boys + present$girls)]
+```
